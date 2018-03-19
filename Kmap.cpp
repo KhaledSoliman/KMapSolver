@@ -5,6 +5,7 @@
 #include "Kmap.h"
 #include <algorithm>
 #include <set>
+#include <iostream>
 
 Kmap::Kmap(Variable v1, Variable v2) {
     map = new Term*[2];
@@ -37,7 +38,7 @@ std::string Kmap::getMinterms() {
         std::cout << "Constructing K-Map" << std::endl;
         generateMap(booleanExpression);
     } catch(const std::invalid_argument& e){
-        std:cout << e;
+        std::cout << e;
     };
 }
 
@@ -121,7 +122,7 @@ bool validateParenthesisExpressions(const std::string& expression){
         int numMinterms = 0;
         for(char a : v){
             if(a != ',')
-                numVars+=1;
+                numVars+=1
         }
         for(char a: m){
             if(a != ',')
@@ -141,7 +142,7 @@ bool validateParenthesisExpressions(const std::string& expression){
                 invalid = true;
             }
         }
-        equalSign.erase(std::remove_if(equalSign.begin(), equalSign.end(), isspace), equalSign.end());
+        equalSign.erase(remove_if(equalSign.begin(), equalSign.end(), isspace), equalSign.end());
         std::set<char> checkerV(v.begin(), v.end());
         std::set<char> checkerM(m.begin(), m.end());
         if (checkerV.size() != (v.size()-std::count(v.begin(),v.end(),',')+1) || checkerM.size() != (m.size()-std::count(m.begin(),m.end(),',')+1) || equalSign != "=")
@@ -150,4 +151,5 @@ bool validateParenthesisExpressions(const std::string& expression){
 
     return invalid;
 }
+
 

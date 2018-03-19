@@ -8,6 +8,7 @@
 #include "Term.h"
 #include "Variable.h"
 #include <iostream>
+#include <string>
 
 
 class Kmap {
@@ -20,6 +21,9 @@ public:
     Kmap(Variable, Variable);
     Kmap(Variable, Variable, Variable);
     Kmap(Variable, Variable, Variable, Variable);
+    void validate(const std::string&);
+    bool validateParenthesis(const std::string&);
+    bool validateParenthesisExpressions(const std::string&);
 
     std::string getMinterms();
 };
