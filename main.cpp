@@ -1,6 +1,7 @@
-#include <iostream>
+    #include <iostream>
 
-int main() {
-    std::cout << "Hello Mazen " << std::endl;
-    return 0;
-}
+    int main() {
+        isdigit(1);
+        std::cout << "Hello Mazen " << std::endl;
+        return 0;
+    }

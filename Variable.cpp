@@ -11,3 +11,4 @@ const std::string &Variable::getName() const {
 void Variable::setName(const std::string &name) {
     Variable::name = name;
 }
+

@@ -21,7 +21,7 @@ public:
     Kmap(Variable, Variable, Variable);
     Kmap(Variable, Variable, Variable, Variable);
 
-    std::string getMinterms()
+    std::string getMinterms();
 };
 
 

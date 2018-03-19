@@ -10,7 +10,6 @@
 class Variable {
 private:
     std::string name;
-
 public:
     const std::string &getName() const;
 
