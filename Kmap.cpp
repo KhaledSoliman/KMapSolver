@@ -1,73 +1,107 @@
 //
-// Created by Mazen on 10.03.18.
+// Created by Mazen & Khaled on 10.03.18.
 //
 
 #include "Kmap.h"
-#include <algorithm>
-#include <set>
 #include <iostream>
+#include <regex>
 
 Kmap::Kmap(Variable v1, Variable v2) {
-    map = new Term*[2];
-    for(int i=0; i<2; i++) {
-        map = new Term*[2];
+    map = new Term *[2];
+    for (int i = 0; i < 2; i++) {
+        map = new Term *[2];
     }
 }
 
-Kmap::Kmap(Variable, Variable, Variable) {
-    map = new Term*[4];
-    for(int i=0; i<4; i++) {
-        map = new Term*[2];
+Kmap::Kmap(Variable v1, Variable v2, Variable v3) {
+    map = new Term *[4];
+    for (int i = 0; i < 4; i++) {
+        map = new Term *[2];
     }
 }
 
-Kmap::Kmap(Variable, Variable, Variable, Variable) {
-    map = new Term*[4];
-    for(int i=0; i<4; i++) {
-        map = new Term*[4];
+Kmap::Kmap(Variable v1, Variable v2, Variable v3, Variable v4) {
+    map = new Term *[4];
+    for (int i = 0; i < 4; i++) {
+        map = new Term *[4];
     }
 }
 
 std::string Kmap::getMinterms() {
     std::string booleanExpression;
-    std::cout << "Enter Function Boolean Expression in the format F(Var#1,Var#2,Var#3,Var#4) = (0,5,6) ";
+    std::cout << "Use this format to submit your boolean expression:" << std::endl;
+    std::cout << "^[a-zA-Z]+\\s*\\((?!.*([a-zA-Z0-9=]).*\\1)[a-zA-Z](?:,[a-zA-Z]){1,3}\\)\\s*=\\s*\\([0-9](?:,[0-9]){0,15}\\)\\s*$" << std::endl;
+    std::cout << "Example: F (a,b,c,d) = (0,1,2,3,5) " << std::endl;
+    std::cout << "Please input your expression: ";
     std::cin >> booleanExpression;
-    try{
+    try {
         validate(booleanExpression);
         std::cout << "Format Accepted." << std::endl;
         std::cout << "Constructing K-Map" << std::endl;
         generateMap(booleanExpression);
-    } catch(const std::invalid_argument& e){
-        std::cout << e.what();
+    } catch (const std::string &e) {
+        std::cout << e;
     };
 }
 
-void Kmap::generateMap(const std::string& expression){
+void Kmap::generateMap(const std::string &expression) {
+    std::string vars = extractVars(expression);
+    std::string minterms = extractMinterms(expression);
 
 }
 
-void Kmap::validate(const std::string& expression){
+void Kmap::validate(const std::string &expression) const {
+    std::regex format = std::regex(
+            "^[a-zA-Z]+\\s*\\((?!.*([a-zA-Z0-9=]).*\\1)[a-zA-Z](?:,[a-zA-Z]){1,3}\\)\\s*=\\s*\\([0-9](?:,[0-9]){0,15}\\)\\s*$");
     std::string error = "Error: ";
-    std::string invalidFormat = "Invalid boolean expression format.  ";
-    std::string parenthesisError = "(1::Check Parenthesis Format Order/Number)";
-    std::string parenthesisError2 = "(2::Check Parenthesis Format Variables/Minterms || Name (vars) = (minterms) is not satisfied)";
-    if( validateParenthesis(expression) ){
-        throw std::invalid_argument(error + invalidFormat + parenthesisError);
-    }else if( validateParenthesisExpressions(expression)){
-        throw std::invalid_argument(error + invalidFormat + parenthesisError2);
+    std::string invalidFormat = "Invalid boolean expression format, please revise your input.  ";
+    std::string regexError = "[(1) expression does not match desired format]";
+    std::string mintermsError = "[(2) number of minterms exceeds the maximum possible combinations of variables]";
+
+    if (!std::regex_match(expression, format)) {
+        throw error + invalidFormat + regexError;
+    } else if (!validateMinterms(expression)) {
+        throw error + invalidFormat + mintermsError;
     }
 }
 
-/* Deprected Functions
+bool Kmap::validateMinterms(const std::string &expression) const {
+    std::string vars = extractVars(expression);
+    std::string minterms = extractMinterms(expression);
+    bool valid = true;
+    int numVars = 0;
+    int numMinterms = 0;
+
+    for (char a : vars)
+        if (a != ',' && a != ' ')
+            numVars += 1;
+    for (char a: minterms)
+        if (a != ',' && a != ' ')
+            numMinterms += 1;
+    if (numMinterms > pow(2, numVars))
+        valid = false;
+
+    return valid;
+}
+
+std::string Kmap::extractVars(const std::string &expression) const {
+    return expression.substr(expression.find('(') + 1, expression.find(')') - expression.find('(') - 1);
+}
+
+std::string Kmap::extractMinterms(const std::string &expression) const {
+    std::size_t posVars = expression.find(')') + 1;
+    std::size_t posMinterms = expression.find('(', posVars) + 1;
+    return expression.substr(posMinterms, expression.find(')', posVars) - posMinterms);
+}
+
+
+/* Deprecated Functions
 bool validateNumParenthesis(const std::string& expression){
     int openedP = std::count(expression.begin(), expression.end(), '(');
     int closedP = std::count(expression.begin(), expression.end(), ')');
 
     return (openedP != 2 || closedP != 2);
 }
-*/
-
-//Better Functions
 bool Kmap::validateParenthesis(const std::string& expression){
     std::string m;
     for(char a: expression){
@@ -77,8 +111,6 @@ bool Kmap::validateParenthesis(const std::string& expression){
     }
     return !(m == "()()");
 }
-
-
 
 bool Kmap::validateParenthesisExpressions(const std::string& expression){
     std::string vars = expression.substr(expression.find('(')+1, expression.find(')')-expression.find('(')-1);
@@ -151,5 +183,6 @@ bool Kmap::validateParenthesisExpressions(const std::string& expression){
 
     return invalid;
 }
+*/
 
 
