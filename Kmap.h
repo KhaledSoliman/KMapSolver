@@ -34,6 +34,7 @@ private:
     bool validateMinterms(const std::string &) const;
 
     Term **map;
+    std::string variables, minterms;
 };
 
 

@@ -5,25 +5,26 @@
 #include "Kmap.h"
 #include <iostream>
 #include <regex>
+#include <cmath>
 
 Kmap::Kmap(Variable v1, Variable v2) {
     map = new Term *[2];
     for (int i = 0; i < 2; i++) {
-        map = new Term *[2];
+        map[i] = new Term [2];
     }
 }
 
 Kmap::Kmap(Variable v1, Variable v2, Variable v3) {
     map = new Term *[4];
     for (int i = 0; i < 4; i++) {
-        map = new Term *[2];
+        map[i] = new Term [2];
     }
 }
 
 Kmap::Kmap(Variable v1, Variable v2, Variable v3, Variable v4) {
     map = new Term *[4];
     for (int i = 0; i < 4; i++) {
-        map = new Term *[4];
+        map[i] = new Term [4];
     }
 }
 
@@ -45,8 +46,8 @@ std::string Kmap::getMinterms() {
 }
 
 void Kmap::generateMap(const std::string &expression) {
-    std::string vars = extractVars(expression);
-    std::string minterms = extractMinterms(expression);
+    this->variables = extractVars(expression);
+    this->minterms = extractMinterms(expression);
 
 }
 
@@ -66,13 +67,13 @@ void Kmap::validate(const std::string &expression) const {
 }
 
 bool Kmap::validateMinterms(const std::string &expression) const {
-    std::string vars = extractVars(expression);
-    std::string minterms = extractMinterms(expression);
+    this->variables = extractVars(expression);
+    this->variables = extractMinterms(expression);
     bool valid = true;
     int numVars = 0;
     int numMinterms = 0;
 
-    for (char a : vars)
+    for (char a : variables)
         if (a != ',' && a != ' ')
             numVars += 1;
     for (char a: minterms)
