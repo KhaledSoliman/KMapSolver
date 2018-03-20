@@ -26,6 +26,7 @@ public:
     bool validateParenthesisExpressions(const std::string&);
     void generateMap(const std::string&);
 
+
     std::string getMinterms();
 };
 

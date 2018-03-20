@@ -1,7 +1,9 @@
-    #include <iostream>
+#include <iostream>
+#include "Kmap.h"
 
-    int main() {
-        isdigit(1);
-        std::cout << "Hello Mazen " << std::endl;
-        return 0;
-    }
+int main() {
+
+
+
+    return 0;
+}
