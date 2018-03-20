@@ -1,14 +1,14 @@
 //
-// Created by Mazen on 10.03.18.
+// Created by Mazen & Khaled on 10.03.18.
 //
 
 #include "Variable.h"
 
-const std::string &Variable::getName() const {
+char Variable::getName() const {
     return name;
 }
 
-void Variable::setName(const std::string &name) {
-    Variable::name = name;
+void Variable::setName(char name) {
+    this->name = name;
 }
 

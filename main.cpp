@@ -1,9 +1,6 @@
 #include <iostream>
-#include "Kmap.h"
 
 int main() {
-
-
-
+    std::cout << "Hello Mazen " << std::endl;
     return 0;
 }
