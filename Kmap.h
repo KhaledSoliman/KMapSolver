@@ -23,6 +23,8 @@ public:
 
     void validate(const std::string &) const;
 
+    void fillKmap();
+
 
     std::string getMinterms();
 

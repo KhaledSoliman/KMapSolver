@@ -67,8 +67,8 @@ void Kmap::validate(const std::string &expression) const {
 }
 
 bool Kmap::validateMinterms(const std::string &expression) const {
-    this->variables = extractVars(expression);
-    this->variables = extractMinterms(expression);
+    std::string variables = extractVars(expression);
+    std::string minterms= extractMinterms(expression);
     bool valid = true;
     int numVars = 0;
     int numMinterms = 0;
@@ -82,6 +82,10 @@ bool Kmap::validateMinterms(const std::string &expression) const {
     if (numMinterms > pow(2, numVars))
         valid = false;
 
+    if(valid) {
+        this->variables = variables;
+        this->minterms = minterms;
+    }
     return valid;
 }
 
@@ -93,6 +97,10 @@ std::string Kmap::extractMinterms(const std::string &expression) const {
     std::size_t posVars = expression.find(')') + 1;
     std::size_t posMinterms = expression.find('(', posVars) + 1;
     return expression.substr(posMinterms, expression.find(')', posVars) - posMinterms);
+}
+
+void Kmap::fillKmap() {
+
 }
 
 
