@@ -9,8 +9,10 @@
 
 class Variable {
 public:
+    Variable(){};
+    Variable(char);
     char getName() const;
-    void setName(char name);
+    void setName(char );
 private:
     char name;
 };

@@ -12,3 +12,7 @@ void Variable::setName(char name) {
     this->name = name;
 }
 
+Variable::Variable(char name)  {
+    this->name=name;
+}
+
