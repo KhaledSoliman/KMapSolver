@@ -11,10 +11,26 @@
 class Term {
 private:
     bool value;
+    int posx;
     int number;
+    bool inluded;
+    int posy;
     bool seen;
     std::string X;
+    std::string Y;
 public:
+    int getPosx() const;
+
+    void setPosx(int posx);
+
+    int getPosy() const;
+
+    void setPosy(int posy);
+
+    bool isInluded() const;
+
+    void setInluded(bool inluded);
+
     const std::string &getX() const;
 
     void setX(const std::string &X);
@@ -23,9 +39,6 @@ public:
 
     void setY(const std::string &Y);
 
-private:
-    std::string Y;
-public:
     bool isSeen() const;
 
     void setSeen(bool seen);

@@ -63,7 +63,9 @@ public:
 
     void simplify();
 
-    std::string draw(Rectangle);
+    void moveRect(int,int);
+
+    std::string draw(int,std::vector<Term*>&);
 
     std::string getMinterms();
 };

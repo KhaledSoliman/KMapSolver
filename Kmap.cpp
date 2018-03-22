@@ -137,6 +137,8 @@ void Kmap::fillMap() {
                 map[i][j].setNumber(num);
                 map[i][j].setValue(val);
             }
+            map[i][j].setPosx(i);
+            map[i][j].setPosy(j);
         }
     }
 }
@@ -160,106 +162,296 @@ void Kmap::printMap() {
     }
 }
 
+
 void Kmap::simplify() {
-    Rectangle rect;
-    std::vector<Term> block;
-    std::string simplifiedExpression;
-    Term nextTerm;
-    Term term;
-    int difference = 0;
-    int numSeen = 0;
+    std::string simplified;
 
-    for(int i =0; i<rowNum; i++) {
-        for (int j = 0; j < columnNum; j++) {
-            if(map[i][j].isTrue() && !map[i][j].isSeen()){
-                term = map[i][j];
-                term.setSeen(true);
-                block.push_back(term);
-                while(numSeen < numMinterms) {
-                    //Go Right
-                    difference = std::stoi(term.getY()) == (columnNum - 1) ? -columnNum + 1 : 1;
-                    nextTerm = map[std::stoi(term.getX())][std::stoi(term.getY()) + difference];
-                    while(nextTerm.isTrue()&& !nextTerm.isSeen()){
-                        nextTerm.setSeen(true);
-                        block.push_back(nextTerm);
-                        difference = std::stoi(term.getY()) == (columnNum - 1) ? -columnNum + 1 : 1;
-                        nextTerm = map[std::stoi(term.getX())][std::stoi(term.getY()) + difference];
-                    }
-                    //Go Left
-                    difference = std::stoi(term.getY()) == 0 ? columnNum - 1 : -1;
-                    nextTerm = map[std::stoi(term.getX())][std::stoi(term.getY()) + difference];
-                    while(nextTerm.isTrue()&& !nextTerm.isSeen()){
-                        nextTerm.setSeen(true);
-                        block.push_back(nextTerm);
-                        difference = std::stoi(term.getY()) == 0 ? columnNum - 1 : -1;
-                        nextTerm = map[std::stoi(term.getX())][std::stoi(term.getY()) + difference];
-                    }
-                    //Go Down
-                    difference = std::stoi(term.getX()) == (rowNum - 1) ? -rowNum + 1 : 1;
-                    nextTerm = map[std::stoi(term.getX()) + difference][std::stoi(term.getY())];
-                    while(nextTerm.isTrue()&& !nextTerm.isSeen()){
-                        nextTerm.setSeen(true);
-                        block.push_back(nextTerm);
-                        difference = std::stoi(term.getY()) == 0 ? columnNum - 1 : -1;
-                        nextTerm = map[std::stoi(term.getX())][std::stoi(term.getY()) + difference];
-                    }
-                    //Go Up
-                    difference = std::stoi(term.getX()) == 0 ? rowNum - 1 : -1;
-                    nextTerm = map[std::stoi(term.getX()) + difference][std::stoi(term.getY())];
-                    while(nextTerm.isTrue()&& !nextTerm.isSeen()){
-                        nextTerm.setSeen(true);
-                        block.push_back(nextTerm);
-                        difference = std::stoi(term.getY()) == 0 ? columnNum - 1 : -1;
-                        nextTerm = map[std::stoi(term.getX())][std::stoi(term.getY()) + difference];
-                    }
-
-                    for(Term a: block){
-                        std::cout << a.getNumber() << " ";
-                    }
-                    std::cout << std::endl;
-                    block.clear();
+    if (numMinterms == (rowNum * columnNum))
+        simplified = "1";
+    else if (numMinterms == 0)
+        simplified == "0";
+    else {
+        bool flag = false;
+        int seen = 0;
+        int area = 0;
+        //4x1
+        for(int i=0; i<rowNum; i++){
+            for(int j=0; j<columnNum; j++){
+                if(confirm(i,j,4,1)){
+                    expression += convertToExpression(j);
                 }
             }
         }
     }
-
-
-
-    /*
-    if (numVariables == 4 && numMinterms == 16) {
-        simplifiedExpression = "1";
-    }
-    if (numVariables <= 4 && numVariables >= 3 && numMinterms >= 8) {
-        rect.setHeight(4);
-        rect.setWidth(2);
-        simplifiedExpression += draw(rect);
-    }
-    if (numMinterms >= 2) {
-        rect.setHeight(2);
-        rect.setWidth(2);
-        simplifiedExpression += draw(rect);
-    }
-    if (numMinterms >= 1) {
-        rect.setHeight(1);
-        rect.setWidth(1);
-        simplifiedExpression += draw(rect);
-    } else {
-        simplifiedExpression = "0";
-    }
-    */
-
 }
 
-std::string Kmap::draw(Rectangle rect) {
-    int i = 0;
-    int area = rect.calcArea();
-    while(i < rowNum){
-        int j = 0;
-        while( j < columnNum){
+        //1x4
+        for(int i=0; i<rowNum; i++){
+            for(int j=0; j<columnNum; j++){
+                if(confirm(i,j,1,4)){
+                    expression += convertToExpression(i);
+                }
+            }
+        }
 
+        //2x2
+        for(int i=0; i<rowNum; i++){
+            for(int j=0; j<columnNum; j++){
+                if(confirm(i,j,2,2)){
+                    expression += convertToExpression(i);
+                }
+            }
+        }
+
+        //2x1
+        for(int i=0; i<rowNum; i++){
+            for(int j=0; j<columnNum; j++){
+                if(confirm(i,j,2,1)){
+                    expression += convertToExpression(i);
+                }
+            }
+        }
+
+        //1x2
+        for(int i=0; i<rowNum; i++){
+            for(int j=0; j<columnNum; j++){
+                if(confirm(i,j,1,2)){
+                    expression += convertToExpression();
+                }
+            }
+        }
+        //1x1
+        for(int i=0; i<rowNum; i++){
+            for(int j=0; j<columnNum; j++){
+                if(confirm(i,j,2,1)){
+                    expression += convertToExpression();
+                }
+            }
+        }
+}
+
+bool Kmap::confirm(int x0, int y0, int xM, int yM) {
+    bool flag = true;
+    if (yM+y0 > columnNum){
+
+    }
+    for (int i = x0; i < xM; i++) {
+        for (int j = y0; j < yM; j++) {
+            if (!map[i][j].isTrue()) {
+                flag = false;
+            }
+         }
+    }
+    return flag;
+}
+
+std::string Kmap::convertToExpression(int binary) {
+
+}
+/*
+void Kmap::simplify() {
+    Rectangle rect;
+    std::vector<Term *> block;
+    std::string simplifiedExpression;
+    Term *nextTerm;
+    Term *term;
+    int difference = 0;
+    int numSeen = 0;
+    int x;
+    int y;
+
+    for (int i = 0; i < rowNum; i++) {
+        for (int j = 0; j < columnNum; j++) {
+            if (numSeen < numMinterms) {
+                if (map[i][j].isTrue() && !map[i][j].isSeen()) {
+                    term = &map[i][j];
+                    term->setSeen(true);
+                    block.push_back(term);
+                    x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getX()).to_ulong() ==
+                                                                              3) ? 2 : std::bitset<2>(
+                            term->getX()).to_ulong();
+                    y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getY()).to_ulong() ==
+                                                                              3) ? 2 : std::bitset<2>(
+                            term->getY()).to_ulong();
+                    difference = (y == (columnNum - 1)) ? -columnNum + 1 : 1;
+                    nextTerm = &map[x][y + difference];
+                    while (nextTerm->isTrue() && !nextTerm->isSeen()) {
+                        nextTerm->setSeen(true);
+                        block.push_back(nextTerm);
+                        term = nextTerm;
+                        x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(
+                                term->getX()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getX()).to_ulong();
+                        y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(
+                                term->getY()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getY()).to_ulong();
+                        difference = (y == (columnNum - 1)) ? -columnNum + 1 : 1;
+                        nextTerm = &map[x][y + difference];
+                    }
+                    term = &map[i][j];
+                    //Go Left
+                    x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getX()).to_ulong() ==
+                                                                              3) ? 2 : std::bitset<2>(
+                            term->getX()).to_ulong();
+                    y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getY()).to_ulong() ==
+                                                                              3) ? 2 : std::bitset<2>(
+                            term->getY()).to_ulong();
+                    difference = y == 0 ? columnNum - 1 : -1;
+                    nextTerm = &map[x][y + difference];
+                    while (nextTerm->isTrue() && !nextTerm->isSeen()) {
+                        nextTerm->setSeen(true);
+                        block.push_back(nextTerm);
+                        term = nextTerm;
+                        x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(
+                                term->getX()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getX()).to_ulong();
+                        y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(
+                                term->getY()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getY()).to_ulong();
+                        difference = y == 0 ? columnNum - 1 : -1;
+                        nextTerm = &map[x][y + difference];
+                    }
+                    term = &map[i][j];
+                    //Go Down
+                    x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getX()).to_ulong() ==
+                                                                              3) ? 2 : std::bitset<2>(
+                            term->getX()).to_ulong();
+                    y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getY()).to_ulong() ==
+                                                                              3) ? 2 : std::bitset<2>(
+                            term->getY()).to_ulong();
+                    difference = (x == (rowNum - 1)) ? -rowNum + 1 : 1;
+                    nextTerm = &map[x + difference][y];
+                    while (nextTerm->isTrue() && !nextTerm->isSeen()) {
+                        nextTerm->setSeen(true);
+                        block.push_back(nextTerm);
+                        term = nextTerm;
+                        x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(
+                                term->getX()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getX()).to_ulong();
+                        y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(
+                                term->getY()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getY()).to_ulong();
+                        difference = (x == (rowNum - 1)) ? -rowNum + 1 : 1;
+                        nextTerm = &map[x + difference][y];
+                    }
+                    term = &map[i][j];
+                    //Go Up
+                    x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getX()).to_ulong() ==
+                                                                              3) ? 2 : std::bitset<2>(
+                            term->getX()).to_ulong();
+                    y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getY()).to_ulong() ==
+                                                                              3) ? 2 : std::bitset<2>(
+                            term->getY()).to_ulong();
+                    difference = x == 0 ? rowNum - 1 : -1;
+                    nextTerm = &map[x + difference][y];
+                    while (nextTerm->isTrue() && !nextTerm->isSeen()) {
+                        nextTerm->setSeen(true);
+                        block.push_back(nextTerm);
+                        term = nextTerm;
+                        x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(
+                                term->getX()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getX()).to_ulong();
+                        y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(
+                                term->getY()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getY()).to_ulong();
+                        difference = x == 0 ? rowNum - 1 : -1;
+                        nextTerm = &map[x + difference][y];
+                    }
+                    term = &map[i][j];
+
+                    if (numVariables == 4 && block.size() == 16) {
+                        simplifiedExpression = "1";
+                        break;
+                    }
+                    if (numVariables <= 4 && numVariables >= 3 && block.size() >= 8) {
+                        simplifiedExpression += draw(8,block);
+                    }
+                    if(block.size() >= 2){
+                        simplifiedExpression += draw(4,block);
+                    }
+                    if (block.size() >= 2) {
+                        simplifiedExpression += draw(2,block);
+                    }
+                    if (block.size() >= 1) {
+                        simplifiedExpression += draw(1,block);
+                    }
+                    block.clear();
+                    numSeen += block.size();
+                }
+            } else {
+                break;
+            }
         }
     }
+
+    if(numMinterms == 0)
+        simplifiedExpression = "0";
+
 }
+
+std::string Kmap::draw(int area, std::vector<Term*>& terms) {
+    Rectangle rect;
+    std::vector<int> heights;
+    std::vector<int> widths;
+    int horizontalSize = 0;
+    int verticalSize = 0;
+    int diffX;
+    int diffY;
+    switch(area){
+        case 16:
+            //poss 1
+            heights.push_back(4);
+            widths.push_back(4);
+            break;
+        case 8:
+            //poss 1
+            heights.push_back(4);
+            widths.push_back(2);
+            //poss 2
+            heights.push_back(2);
+            widths.push_back(4);
+            break;
+        case 4:
+            //poss 1
+            heights.push_back(4);
+            widths.push_back(1);
+            //poss 2
+            heights.push_back(2);
+            widths.push_back(2);
+            //poss 3
+            heights.push_back(1);
+            widths.push_back(4);
+            break;
+        case 2:
+            //poss 1
+            heights.push_back(2);
+            widths.push_back(1);
+            //poss 2
+            heights.push_back(1);
+            widths.push_back(2);
+            break;
+        default:
+            //poss 1
+            heights.push_back(1);
+            widths.push_back(1);
+            break;
+    }
+    for(int i =0; i<heights.size();i++){
+        rect.setHeight(heights.front());
+        heights.pop_back();
+        rect.setWidth(widths.front());
+        widths.pop_back();
+        for(Term* a: terms){
+            for(Term* b: terms){
+                diffY = abs(b->getPosy() - a->getPosy());
+                diffX = abs(b->getPosx() - a->getPosx());
+                if(diffY == 1 && diffX == 0){
+
+                }else if(diffY == 0 && diffX== 1){
+
+                }
+            }
+        }
+        if(verticalSize <= rect.getHeight() && horizontalSize <= rect.getWidth()){
+
+        }
+        horizontalSize = 0;
+        verticalSize = 0;
+    }
+}
+*/
 /*
 void Kmap::getContigousBlock(std::vector<Term>& block, Term& term){
 

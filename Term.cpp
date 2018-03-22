@@ -44,3 +44,27 @@ void Term::setY(const std::string &Y) {
     Term::Y = Y;
 }
 
+bool Term::isInluded() const {
+    return inluded;
+}
+
+void Term::setInluded(bool inluded) {
+    Term::inluded = inluded;
+}
+
+int Term::getPosx() const {
+    return posx;
+}
+
+void Term::setPosx(int posx) {
+    Term::posx = posx;
+}
+
+int Term::getPosy() const {
+    return posy;
+}
+
+void Term::setPosy(int posy) {
+    Term::posy = posy;
+}
+
