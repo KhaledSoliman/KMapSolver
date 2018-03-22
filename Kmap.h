@@ -63,6 +63,10 @@ public:
 
     void simplify();
 
+    bool checkArray(int,int,int,int);
+
+    std::string convertToExpression(int,int,int,int);
+
     void moveRect(int,int);
 
     std::string draw(int,std::vector<Term*>&);

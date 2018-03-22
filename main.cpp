@@ -4,4 +4,5 @@
 int main() {
     Kmap m;
     m.getMinterms();
+    system("pause");
 }

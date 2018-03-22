@@ -9,11 +9,27 @@
 
 class Variable {
 public:
-    Variable(){};
+    Variable() {reset();};
+
     Variable(char);
+
     char getName() const;
-    void setName(char );
+
+    void reset();
+
+    void setName(char);
+
+    int getValue() const;
+
+    void setValue(int value);
+
+    int getChanged() const;
+
+    void setChanged(int changed);
+
 private:
+    int value;
+    int changed;
     char name;
 };
 

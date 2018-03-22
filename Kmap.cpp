@@ -160,392 +160,140 @@ void Kmap::printMap() {
             std::cout << "    " << map[i][j].isTrue();
         }
     }
+    std::cout << std::endl;
 }
 
 
 void Kmap::simplify() {
     std::string simplified;
-
+    simplified += "F =";
     if (numMinterms == (rowNum * columnNum))
         simplified = "1";
     else if (numMinterms == 0)
         simplified == "0";
     else {
-        bool flag = false;
+        bool first = true;
         int seen = 0;
-        int area = 0;
-        //4x1
-        for(int i=0; i<rowNum; i++){
-            for(int j=0; j<columnNum; j++){
-                if(confirm(i,j,4,1)){
-                    expression += convertToExpression(j);
+        int possibilities = 8;
+        int widths[] = {4, 2, 4, 1, 2, 2, 1, 1}; // 4x 2x 4x 1x 2x 2x 1x 1x
+        int heights[] = {2, 4, 1, 4, 2, 1, 2, 1}; //2  4  1  4  2  1  2  1
+        int p = 0;
+        int width;
+        int height;
+        int area;
+        while (p < possibilities && seen < numMinterms) {
+            width = widths[p];
+            height = heights[p];
+            area = width * height;
+            for (int i = 0; i < rowNum; i++) {
+                for (int j = 0; j < columnNum; j++) {
+                    if (checkArray(i, j, width, height)) {
+                        simplified += first ? " " : " + ";
+                        simplified += convertToExpression(i, j, width, height);
+                        seen += area;
+                        first = false;
+                    }
                 }
             }
+            p++;
         }
+    }
+    std::cout << simplified << std::endl;
+}
+
+bool Kmap::checkArray(int x0, int y0, int xM, int yM) {
+    //if rect width or height violates possible arrays from current map return false
+    if (y0 + yM <= (columnNum + 1) && x0 + xM <= (rowNum + 1)) {
+        bool flag = true;
+        int x;
+        int y;
+        int seen = 0;
+        for (int i = x0; i < x0 + xM; i++) {
+            x = i == rowNum ? 0 : i;
+            for (int j = y0; j < y0 + yM; j++) {
+                y = j == columnNum ? 0 : j;
+                //std::cout << x << ", " << y << std::endl;
+                if (!map[x][y].isTrue()) {
+                    flag = false;
+                    goto endloop;
+                } else if (map[x][y].isSeen())
+                    seen++;
+            }
+        }
+        //if all terms were seen by another rect return false
+        if (seen >= (xM * yM))
+            flag = false;
+        endloop:
+        return flag;
+    } else {
+        return false;
     }
 }
 
-        //1x4
-        for(int i=0; i<rowNum; i++){
-            for(int j=0; j<columnNum; j++){
-                if(confirm(i,j,1,4)){
-                    expression += convertToExpression(i);
-                }
-            }
-        }
-
-        //2x2
-        for(int i=0; i<rowNum; i++){
-            for(int j=0; j<columnNum; j++){
-                if(confirm(i,j,2,2)){
-                    expression += convertToExpression(i);
-                }
-            }
-        }
-
-        //2x1
-        for(int i=0; i<rowNum; i++){
-            for(int j=0; j<columnNum; j++){
-                if(confirm(i,j,2,1)){
-                    expression += convertToExpression(i);
-                }
-            }
-        }
-
-        //1x2
-        for(int i=0; i<rowNum; i++){
-            for(int j=0; j<columnNum; j++){
-                if(confirm(i,j,1,2)){
-                    expression += convertToExpression();
-                }
-            }
-        }
-        //1x1
-        for(int i=0; i<rowNum; i++){
-            for(int j=0; j<columnNum; j++){
-                if(confirm(i,j,2,1)){
-                    expression += convertToExpression();
-                }
-            }
-        }
-}
-
-bool Kmap::confirm(int x0, int y0, int xM, int yM) {
-    bool flag = true;
-    if (yM+y0 > columnNum){
-
-    }
-    for (int i = x0; i < xM; i++) {
-        for (int j = y0; j < yM; j++) {
-            if (!map[i][j].isTrue()) {
-                flag = false;
-            }
-         }
-    }
-    return flag;
-}
-
-std::string Kmap::convertToExpression(int binary) {
-
-}
-/*
-void Kmap::simplify() {
-    Rectangle rect;
-    std::vector<Term *> block;
-    std::string simplifiedExpression;
-    Term *nextTerm;
-    Term *term;
-    int difference = 0;
-    int numSeen = 0;
+std::string Kmap::convertToExpression(int x0, int y0, int xM, int yM) {
+    std::string exp;
+    char comp = '\'';
     int x;
     int y;
-
-    for (int i = 0; i < rowNum; i++) {
-        for (int j = 0; j < columnNum; j++) {
-            if (numSeen < numMinterms) {
-                if (map[i][j].isTrue() && !map[i][j].isSeen()) {
-                    term = &map[i][j];
-                    term->setSeen(true);
-                    block.push_back(term);
-                    x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getX()).to_ulong() ==
-                                                                              3) ? 2 : std::bitset<2>(
-                            term->getX()).to_ulong();
-                    y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getY()).to_ulong() ==
-                                                                              3) ? 2 : std::bitset<2>(
-                            term->getY()).to_ulong();
-                    difference = (y == (columnNum - 1)) ? -columnNum + 1 : 1;
-                    nextTerm = &map[x][y + difference];
-                    while (nextTerm->isTrue() && !nextTerm->isSeen()) {
-                        nextTerm->setSeen(true);
-                        block.push_back(nextTerm);
-                        term = nextTerm;
-                        x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(
-                                term->getX()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getX()).to_ulong();
-                        y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(
-                                term->getY()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getY()).to_ulong();
-                        difference = (y == (columnNum - 1)) ? -columnNum + 1 : 1;
-                        nextTerm = &map[x][y + difference];
-                    }
-                    term = &map[i][j];
-                    //Go Left
-                    x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getX()).to_ulong() ==
-                                                                              3) ? 2 : std::bitset<2>(
-                            term->getX()).to_ulong();
-                    y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getY()).to_ulong() ==
-                                                                              3) ? 2 : std::bitset<2>(
-                            term->getY()).to_ulong();
-                    difference = y == 0 ? columnNum - 1 : -1;
-                    nextTerm = &map[x][y + difference];
-                    while (nextTerm->isTrue() && !nextTerm->isSeen()) {
-                        nextTerm->setSeen(true);
-                        block.push_back(nextTerm);
-                        term = nextTerm;
-                        x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(
-                                term->getX()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getX()).to_ulong();
-                        y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(
-                                term->getY()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getY()).to_ulong();
-                        difference = y == 0 ? columnNum - 1 : -1;
-                        nextTerm = &map[x][y + difference];
-                    }
-                    term = &map[i][j];
-                    //Go Down
-                    x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getX()).to_ulong() ==
-                                                                              3) ? 2 : std::bitset<2>(
-                            term->getX()).to_ulong();
-                    y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getY()).to_ulong() ==
-                                                                              3) ? 2 : std::bitset<2>(
-                            term->getY()).to_ulong();
-                    difference = (x == (rowNum - 1)) ? -rowNum + 1 : 1;
-                    nextTerm = &map[x + difference][y];
-                    while (nextTerm->isTrue() && !nextTerm->isSeen()) {
-                        nextTerm->setSeen(true);
-                        block.push_back(nextTerm);
-                        term = nextTerm;
-                        x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(
-                                term->getX()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getX()).to_ulong();
-                        y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(
-                                term->getY()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getY()).to_ulong();
-                        difference = (x == (rowNum - 1)) ? -rowNum + 1 : 1;
-                        nextTerm = &map[x + difference][y];
-                    }
-                    term = &map[i][j];
-                    //Go Up
-                    x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getX()).to_ulong() ==
-                                                                              3) ? 2 : std::bitset<2>(
-                            term->getX()).to_ulong();
-                    y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(term->getY()).to_ulong() ==
-                                                                              3) ? 2 : std::bitset<2>(
-                            term->getY()).to_ulong();
-                    difference = x == 0 ? rowNum - 1 : -1;
-                    nextTerm = &map[x + difference][y];
-                    while (nextTerm->isTrue() && !nextTerm->isSeen()) {
-                        nextTerm->setSeen(true);
-                        block.push_back(nextTerm);
-                        term = nextTerm;
-                        x = (std::bitset<2>(term->getX()).to_ulong() == 2) ? 3 : (std::bitset<2>(
-                                term->getX()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getX()).to_ulong();
-                        y = (std::bitset<2>(term->getY()).to_ulong() == 2) ? 3 : (std::bitset<2>(
-                                term->getY()).to_ulong() == 3) ? 2 : std::bitset<2>(term->getY()).to_ulong();
-                        difference = x == 0 ? rowNum - 1 : -1;
-                        nextTerm = &map[x + difference][y];
-                    }
-                    term = &map[i][j];
-
-                    if (numVariables == 4 && block.size() == 16) {
-                        simplifiedExpression = "1";
-                        break;
-                    }
-                    if (numVariables <= 4 && numVariables >= 3 && block.size() >= 8) {
-                        simplifiedExpression += draw(8,block);
-                    }
-                    if(block.size() >= 2){
-                        simplifiedExpression += draw(4,block);
-                    }
-                    if (block.size() >= 2) {
-                        simplifiedExpression += draw(2,block);
-                    }
-                    if (block.size() >= 1) {
-                        simplifiedExpression += draw(1,block);
-                    }
-                    block.clear();
-                    numSeen += block.size();
-                }
-            } else {
-                break;
-            }
+    int xNext;
+    int yNext;
+    std::string binary;
+    std::string binary2;
+    for (int i = x0; i < x0 + xM; i++) {
+        x = i == rowNum ? 0 : i;
+        for (int j = y0; j < y0 + yM; j++) {
+            y = j == columnNum ? 0 : j;
+            map[x][y].setSeen(true);
         }
     }
-
-    if(numMinterms == 0)
-        simplifiedExpression = "0";
-
-}
-
-std::string Kmap::draw(int area, std::vector<Term*>& terms) {
-    Rectangle rect;
-    std::vector<int> heights;
-    std::vector<int> widths;
-    int horizontalSize = 0;
-    int verticalSize = 0;
-    int diffX;
-    int diffY;
-    switch(area){
-        case 16:
-            //poss 1
-            heights.push_back(4);
-            widths.push_back(4);
-            break;
-        case 8:
-            //poss 1
-            heights.push_back(4);
-            widths.push_back(2);
-            //poss 2
-            heights.push_back(2);
-            widths.push_back(4);
-            break;
-        case 4:
-            //poss 1
-            heights.push_back(4);
-            widths.push_back(1);
-            //poss 2
-            heights.push_back(2);
-            widths.push_back(2);
-            //poss 3
-            heights.push_back(1);
-            widths.push_back(4);
-            break;
-        case 2:
-            //poss 1
-            heights.push_back(2);
-            widths.push_back(1);
-            //poss 2
-            heights.push_back(1);
-            widths.push_back(2);
-            break;
-        default:
-            //poss 1
-            heights.push_back(1);
-            widths.push_back(1);
-            break;
-    }
-    for(int i =0; i<heights.size();i++){
-        rect.setHeight(heights.front());
-        heights.pop_back();
-        rect.setWidth(widths.front());
-        widths.pop_back();
-        for(Term* a: terms){
-            for(Term* b: terms){
-                diffY = abs(b->getPosy() - a->getPosy());
-                diffX = abs(b->getPosx() - a->getPosx());
-                if(diffY == 1 && diffX == 0){
-
-                }else if(diffY == 0 && diffX== 1){
-
+    if (yM == 2) {
+        for (int j = y0; j < y0 + yM; j += 2) {
+            y = j == columnNum ? 0 : j;
+            yNext = (y + 1) > columnNum - 1 ? 0 : y + 1;
+            binary = map[x0][y].getY();
+            binary2 = map[x0][yNext].getY();
+            for (int c = 0; c < binary.size(); c++) {
+                if (binary2[c] == binary[c]){
+                    exp += variableArray[c].getName();
+                    if(binary[c] == '0')
+                        exp += comp;
                 }
             }
         }
-        if(verticalSize <= rect.getHeight() && horizontalSize <= rect.getWidth()){
-
-        }
-        horizontalSize = 0;
-        verticalSize = 0;
-    }
-}
-*/
-/*
-void Kmap::getContigousBlock(std::vector<Term>& block, Term& term){
-
-}
-
-*/
-/* Deprecated Functions
-bool validateNumParenthesis(const std::string& expression){
-    int openedP = std::count(expression.begin(), expression.end(), '(');
-    int closedP = std::count(expression.begin(), expression.end(), ')');
-
-    return (openedP != 2 || closedP != 2);
-}
-bool Kmap::validateParenthesis(const std::string& expression){
-    std::string m;
-    for(char a: expression){
-        if(a == '(' || a==')'){
-            m += a;
+    } else if (yM == 1) {
+        binary = map[x0][y0].getY();
+        for (int c = 0; c < binary.size(); c++) {
+            exp += variableArray[c].getName();
+            if(binary[c] == '0')
+                exp += comp;
         }
     }
-    return !(m == "()()");
-}
-
-bool Kmap::validateParenthesisExpressions(const std::string& expression){
-    std::string vars = expression.substr(expression.find('(')+1, expression.find(')')-expression.find('(')-1);
-    std::size_t pepe = expression.find(vars);
-    std::size_t cece = expression.find('(',pepe+vars.length()+1)+1;
-    std::string minterms = expression.substr(cece,expression.find(')',pepe+vars.length()+1)-cece);
-    std::string equalSign = expression.substr(pepe+vars.length()+1,cece-(pepe+vars.length()+1));
-    std::string functionName = expression.substr(0,pepe-1);
-    std::string v;
-    std::string m;
-    bool invalid = false;
-
-
-    //Check 1
-    for(char a: vars){
-        if(!isalpha(a) && a != ',' && a != ' '){
-            invalid = true;
-        }else if(a != ' '){
-            v += a;
-        }
-    }
-    for(char a: minterms){
-        if(!isdigit(a) && a != ',' && a != ' '){
-            invalid = true;
-        }else if(a != ' '){
-            m += a;
-        }
-    }
-    for(char a: functionName){
-        if(!isalpha(a) || a != ' ')
-            invalid = true;
-    }
-
-    //Check 2
-    if(v[0] == ',' || v[v.length()-1] == ',' || m[0] == ',' || m[m.length()-1] == ','){
-        invalid = true;
-    }else if(v.length() <= 2 || m.length() == 0){
-        invalid = true;
-    }else {
-        int numVars = 0;
-        int numMinterms = 0;
-        for(char a : v){
-            if(a != ',')
-                numVars+=1;
-        }
-        for(char a: m){
-            if(a != ',')
-                numMinterms+=1;
-        }
-        if(numVars > 4 || numVars < 2)
-            invalid = true;
-        else if(numMinterms > pow(2,numVars))
-            invalid = true;
-        for(unsigned int i = 1; i < v.length()-1; i++){
-            if(v[i] == ',' && v[i+1] == ','){
-                invalid = true;
+    if (xM == 2) {
+        for (int i = x0; i < x0 + xM; i += 2) {
+            x = i == rowNum ? 0 : i;
+            xNext = (x + 1) > rowNum - 1 ? 0 : x + 1;
+            binary = map[x][y0].getX();
+            binary2 = map[xNext][y0].getX();
+            for (int c = 0; c < binary.size(); c++) {
+                if (binary2[c] == binary[c]){
+                    exp += variableArray[(numVariables / 2) + c].getName();
+                    if(binary[c] == '0')
+                        exp += comp;
+                }
             }
         }
-        for(unsigned int i = 1; i < m.length()-1; i++){
-            if(m[i] == ',' && m[i+1] == ',' ){
-                invalid = true;
+    } else if (xM == 1) {
+        binary = map[x0][y0].getX();
+        for (int c = 0; c < binary.size(); c++) {
+            if (binary2[c] == binary[c]){
+                exp += variableArray[(numVariables / 2) + c].getName();
+                if(binary[c] == '0')
+                    exp += comp;
             }
         }
-        equalSign.erase(std::remove_if(equalSign.begin(), equalSign.end(), isspace), equalSign.end());
-        std::set<char> checkerV(v.begin(), v.end());
-        std::set<char> checkerM(m.begin(), m.end());
-        if (checkerV.size() != (v.size()-std::count(v.begin(),v.end(),',')+1) || checkerM.size() != (m.size()-std::count(m.begin(),m.end(),',')+1) || equalSign != "=")
-            invalid = true;
     }
 
-    return invalid;
+    return exp;
 }
-*/
 
 
