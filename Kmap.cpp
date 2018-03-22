@@ -276,7 +276,7 @@ std::string Kmap::convertToExpression(int x0, int y0, int xM, int yM) {
             binary2 = map[xNext][y0].getX();
             for (int c = 0; c < binary.size(); c++) {
                 if (binary2[c] == binary[c]){
-                    exp += variableArray[(numVariables / 2) + c].getName();
+                    exp += variableArray[(int)ceil(numVariables / 2.0) + c].getName();
                     if(binary[c] == '0')
                         exp += comp;
                 }
@@ -285,11 +285,9 @@ std::string Kmap::convertToExpression(int x0, int y0, int xM, int yM) {
     } else if (xM == 1) {
         binary = map[x0][y0].getX();
         for (int c = 0; c < binary.size(); c++) {
-            if (binary2[c] == binary[c]){
-                exp += variableArray[(numVariables / 2) + c].getName();
-                if(binary[c] == '0')
-                    exp += comp;
-            }
+            exp += variableArray[(int)ceil(numVariables / 2.0) + c].getName();
+            if(binary[c] == '0')
+                exp += comp;
         }
     }
 
